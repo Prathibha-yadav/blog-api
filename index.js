@@ -2,9 +2,13 @@
 
 const express = require('express');
 const BlogPost = require('./blog');
+const ejs = require('ejs');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.get('/', (req, res) => {
     res.send('Welcome to the Blog API!');
@@ -27,7 +31,7 @@ app.post('/blog', async (req, res) => {
 app.get('/blog', async (req, res) => {
   try {
     const blogPosts = await BlogPost.findAll();
-    res.json(blogPosts);
+    res.render('blog', { blogPosts }); // Render the 'blog' template with data
   } catch (error) {
     console.error('Error getting blog posts', error);
     res.status(500).send('Internal Server Error');
