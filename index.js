@@ -1,6 +1,7 @@
 // index.js
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const BlogPost = require('./blog');
 const ejs = require('ejs');
 const path = require('path');
@@ -9,23 +10,12 @@ const app = express();
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
-    res.send('Welcome to the Blog API!');
+    res.render('newblog');
   });
   
-// POST /blog - create a new blog post
-app.post('/blog', async (req, res) => {
-  const { title, content, author } = req.body;
-
-  try {
-    const newPost = await BlogPost.create({ title, content, author });
-    res.status(201).json(newPost);
-  } catch (error) {
-    console.error('Error creating blog post', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 // GET /blog - get all blog posts
 app.get('/blog', async (req, res) => {
@@ -37,6 +27,19 @@ app.get('/blog', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+// POST /blog - create a new blog post
+app.post('/blog', async (req, res) => {
+  const { title, content, author } = req.body;
+
+  try {
+    const newPost = await BlogPost.create({ title, content, author });
+    res.redirect('/blog');
+  } catch (error) {
+    console.error('Error creating blog post', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 // GET /blog/:id - get a specific blog post
 app.get('/blog/:id', async (req, res) => {
